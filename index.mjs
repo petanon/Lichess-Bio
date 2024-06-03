@@ -26,7 +26,7 @@ app.get('/lichess-stats/:username', async (req, res) => {
         const minutes = Math.floor((timeDiff % (1000 * 60)) / 1000 / 60);
 
         const onlineStatusColor = (days === 0 && hours === 0 && minutes <= 5) ? '#4caf50' : '#9e9e9e';
-        const onlineStatusText = (days === 0 && hours === 0 && minutes <= 5) ? 'Online' : '';
+        const onlineStatusText = (days === 0 && hours === 0 && minutes <= 5) ? 'Online' : `Online: ${days} days, ${hours} h, and ${minutes} min ago`;
 
         const svg = create({ version: '1.0', encoding: 'UTF-8' })
             .ele('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 600, height: 350, style: 'border-radius: 9px; background-color: #1e1e1e; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);' })
@@ -80,9 +80,8 @@ app.get('/lichess-stats/:username', async (req, res) => {
                 .ele('text', { x: 300, y: 50, class: 'header' })
                     .txt(`⚜️${data.username}⚜️`).up()
                 .ele('circle', { cx: 570, cy: 30, r: 10, class: 'status-dot' }).up()
-                .ele('text', { x: 590, y: 35, class: 'content' }).txt(onlineStatusText).up()
                 .ele('text', { x: 300, y: 80, class: 'subheader' })
-                    .txt(`Online: ${days} days, ${hours} h, and ${minutes} min ago`).up()
+                    .txt(`${onlineStatusText}`).up()
                 .ele('text', { x: 50, y: 150, class: 'content' })
                     .txt(`🧠Rapid: ${data.perfs.rapid.rating}`).up()
                 .ele('rect', { x: 180, y: 140, width: `${data.perfs.rapid.rating / 3000 * 400}`, height: 20, class: 'graph' }).up()
