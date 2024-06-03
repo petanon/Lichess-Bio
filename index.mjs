@@ -26,7 +26,7 @@ app.get('/lichess-stats/:username', async (req, res) => {
         const minutes = Math.floor((timeDiff % (1000 * 60)) / 1000 / 60);
 
         const svg = create({ version: '1.0', encoding: 'UTF-8' })
-            .ele('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 600, height: 300, style: 'border-radius: 9px; background-color: #1e1e1e; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);' })
+            .ele('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 600, height: 400, style: 'border-radius: 9px; background-color: #1e1e1e; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);' })
                 .ele('style')
                     .txt(`
                         text {
@@ -35,6 +35,7 @@ app.get('/lichess-stats/:username', async (req, res) => {
                         }
                         .header {
                             font-size: 26px;
+                            font-weight: bold;
                             text-anchor: middle;
                         }
                         .subheader {
@@ -46,6 +47,8 @@ app.get('/lichess-stats/:username', async (req, res) => {
                         }
                         .rating-bar {
                             fill: #4caf50;
+                            rx: 10;
+                            ry: 10;
                         }
                         .border-box {
                             stroke: #4a4a4a;
@@ -62,32 +65,28 @@ app.get('/lichess-stats/:username', async (req, res) => {
                         }
                         .graph {
                             fill: #4caf50;
+                            rx: 10;
+                            ry: 10;
                         }
                     `).up()
                 .ele('rect', { width: '100%', height: '100%', fill: '#1e1e1e', rx: 9, ry: 9 }).up()
-                .ele('rect', { x: 10, y: 10, width: 580, height: 280, class: 'border-box' }).up()
+                .ele('rect', { x: 10, y: 10, width: 580, height: 380, class: 'border-box' }).up()
                 .ele('text', { x: 300, y: 50, class: 'header' })
                     .txt(`⚜️${data.username}⚜️`).up()
                 .ele('text', { x: 300, y: 80, class: 'subheader' })
                     .txt(`Online: ${days} days, ${hours} h, and ${minutes} min ago`).up()
                 .ele('text', { x: 50, y: 150, class: 'content' })
-                    .ele('svg', { x: 0, y: -12, class: 'icon', viewBox: '0 0 16 16' })
-                        .ele('path', { d: 'M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM5 12l4-8v8H5z' }).up().up()
                     .txt(`🧠Rapid: ${data.perfs.rapid.rating}`).up()
-                .ele('rect', { x: 180, y: 150, width: `${data.perfs.rapid.rating / 3000 * 400}`, height: 20, class: 'graph' }).up()
-                .ele('text', { x: 50, y: 150, class: 'content' })
-                    .ele('svg', { x: 0, y: 0, class: 'icon', viewBox: '0 0 16 16' })
-                        .ele('path', { d: 'M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM5 12l4-8v8H5z' }).up().up()
-                    .txt(`🔥Blitz: ${data.perfs.blitz.rating}`).up()
-                .ele('rect', { x: 180, y: 200, width: `${data.perfs.blitz.rating / 3000 * 400}`, height: 20, class: 'graph' }).up()
+                .ele('rect', { x: 180, y: 140, width: `${data.perfs.rapid.rating / 3000 * 400}`, height: 20, class: 'graph' }).up()
                 .ele('text', { x: 50, y: 200, class: 'content' })
-                    .ele('svg', { x: 0, y: 0, class: 'icon', viewBox: '0 0 16 16' })
-                        .ele('path', { d: 'M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM5 12l4-8v8H5z' }).up().up()
+                    .txt(`🔥Blitz: ${data.perfs.blitz.rating}`).up()
+                .ele('rect', { x: 180, y: 190, width: `${data.perfs.blitz.rating / 3000 * 400}`, height: 20, class: 'graph' }).up()
+                .ele('text', { x: 50, y: 250, class: 'content' })
                     .txt(`⚡Bullet: ${data.perfs.bullet.rating}`).up()
                 .ele('rect', { x: 180, y: 240, width: `${data.perfs.bullet.rating / 3000 * 400}`, height: 20, class: 'graph' }).up()
-                .ele('text', { x: 50, y: 240, class: 'content' })
-                    .ele('svg', { x: 0, y: 0, class: 'icon', viewBox: '0 0 16 16' })
-                        .ele('path', { d: 'M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM5 12l4-8v8H5z' }).up().up()
+                .ele('text', { x: 50, y: 300, class: 'content' })
+                    .txt(`🕒Playtime: ${Math.floor(data.playTime.total / (60 * 60 * 1000))} hours`).up()
+                .ele('rect', { x: 180, y: 290, width: `${data.playTime.total / (60 * 60 * 1000) / 100 * 400}`, height: 20, class: 'graph' }).up()
             .end({ prettyPrint: true });
 
         console.log('SVG generated successfully:', svg);
