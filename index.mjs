@@ -5,6 +5,106 @@ import { create } from 'xmlbuilder2';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Function to create SVG
+const createSVG = (data, onlineStatusColor, onlineStatusText) => {
+    return create({ version: '1.0', encoding: 'UTF-8' })
+        .ele('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 600, height: 350, style: 'border-radius: 9px; background-color: #1e1e1e; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);' })
+            .ele('style')
+                .txt(`
+                    text {
+                        font-family: 'Roboto Condensed', sans-serif;
+                        fill: #f5f5f5;
+                    }
+                    .header {
+                        font-size: 26px;
+                        font-weight: bold;
+                        text-anchor: middle;
+                    }
+                    .subheader {
+                        font-size: 18px;
+                        text-anchor: middle;
+                    }
+                    .content {
+                        font-size: 16px;
+                    }
+                    .rating-bar {
+                        fill: #4caf50;
+                        rx: 10;
+                        ry: 10;
+                    }
+                    .border-box {
+                        stroke: #4a4a4a;
+                        stroke-width: 2;
+                        fill: none;
+                        rx: 9;
+                        ry: 9;
+                    }
+                    .icon {
+                        width: 20px;
+                        height: 20px;
+                        fill: #f5f5f5;
+                        margin-right: 5px;
+                    }
+                    .graph {
+                        fill: #4caf50;
+                        rx: 10;
+                        ry: 10;
+                    }
+                    .status-dot {
+                        fill: ${onlineStatusColor};
+                    }
+                `).up()
+            .ele('rect', { width: '100%', height: '100%', fill: '#1e1e1e', rx: 9, ry: 9 }).up()
+            .ele('rect', { x: 10, y: 10, width: 580, height: 330, class: 'border-box' }).up()
+            .ele('text', { x: 300, y: 50, class: 'header' })
+                .txt(`⚜️${data.username}⚜️`).up()
+            .ele('circle', { cx: 570, cy: 30, r: 10, class: 'status-dot' }).up()
+            .ele('text', { x: 300, y: 80, class: 'subheader' })
+                .txt(`${onlineStatusText}`).up()
+            .ele('text', { x: 50, y: 150, class: 'content' })
+                .txt('🧠Rapid: ')
+                .ele('tspan', { id: 'rapid-rating' }).up().up()
+            .ele('rect', { x: 180, y: 140, width: 0, height: 20, class: 'graph' })
+                .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs.rapid.rating / 3000 * 400}`, dur: '2s', fill: 'freeze' }).up().up()
+            .ele('text', { x: 50, y: 200, class: 'content' })
+                .txt('🔥Blitz: ')
+                .ele('tspan', { id: 'blitz-rating' }).up().up()
+            .ele('rect', { x: 180, y: 190, width: 0, height: 20, class: 'graph' })
+                .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs.blitz.rating / 3000 * 400}`, dur: '2s', fill: 'freeze' }).up().up()
+            .ele('text', { x: 50, y: 250, class: 'content' })
+                .txt('⚡Bullet: ')
+                .ele('tspan', { id: 'bullet-rating' }).up().up()
+            .ele('rect', { x: 180, y: 240, width: 0, height: 20, class: 'graph' })
+                .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs.bullet.rating / 3000 * 400}`, dur: '2s', fill: 'freeze' }).up().up()
+            .ele('script')
+                .txt(`
+                const animateValue = (id, start, end, duration) => {
+                    const element = document.getElementById(id);
+                    const range = end - start;
+                    const stepTime = Math.abs(Math.floor(duration / range));
+                    let startTime = null;
+                
+                    const step = (timestamp) => {
+                        if (!startTime) startTime = timestamp;
+                        const progress = timestamp - startTime;
+                        const current = Math.min(start + Math.floor((progress / duration) * range), end);
+                        element.textContent = current;
+                        if (current < end) {
+                            window.requestAnimationFrame(step);
+                        }
+                    };
+                
+                    window.requestAnimationFrame(step);
+                };
+                
+                animateValue('rapid-rating', 0, ${data.perfs.rapid.rating}, 2000);
+                animateValue('blitz-rating', 0, ${data.perfs.blitz.rating}, 2000);
+                animateValue('bullet-rating', 0, ${data.perfs.bullet.rating}, 2000);
+                
+                `).up()
+        .end({ prettyPrint: true });
+};
+
 app.get('/lichess-stats/:username', async (req, res) => {
     const { username } = req.params;
     console.log(`Fetching data for user: ${username}`);
@@ -28,77 +128,7 @@ app.get('/lichess-stats/:username', async (req, res) => {
         const onlineStatusColor = (days === 0 && hours === 0 && minutes <= 5) ? '#4caf50' : '#9e9e9e';
         const onlineStatusText = (days === 0 && hours === 0 && minutes <= 5) ? 'Online' : `Online: ${days} days, ${hours} h, and ${minutes} min ago`;
 
-        const svg = create({ version: '1.0', encoding: 'UTF-8' })
-            .ele('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 600, height: 350, style: 'border-radius: 9px; background-color: #1e1e1e; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);' })
-                .ele('style')
-                    .txt(`
-                        text {
-                            font-family: 'Roboto Condensed', sans-serif;
-                            fill: #f5f5f5;
-                        }
-                        .header {
-                            font-size: 26px;
-                            font-weight: bold;
-                            text-anchor: middle;
-                        }
-                        .subheader {
-                            font-size: 18px;
-                            text-anchor: middle;
-                        }
-                        .content {
-                            font-size: 16px;
-                        }
-                        .rating-bar {
-                            fill: #4caf50;
-                            rx: 10;
-                            ry: 10;
-                        }
-                        .border-box {
-                            stroke: #4a4a4a;
-                            stroke-width: 2;
-                            fill: none;
-                            rx: 9;
-                            ry: 9;
-                        }
-                        .icon {
-                            width: 20px;
-                            height: 20px;
-                            fill: #f5f5f5;
-                            margin-right: 5px;
-                        }
-                        .graph {
-                            fill: #4caf50;
-                            rx: 10;
-                            ry: 10;
-                        }
-                        .status-dot {
-                            fill: ${onlineStatusColor};
-                        }
-                    `).up()
-                .ele('rect', { width: '100%', height: '100%', fill: '#1e1e1e', rx: 9, ry: 9 }).up()
-                .ele('rect', { x: 10, y: 10, width: 580, height: 330, class: 'border-box' }).up()
-                .ele('text', { x: 300, y: 50, class: 'header' })
-                    .txt(`⚜️${data.username}⚜️`).up()
-                .ele('circle', { cx: 570, cy: 30, r: 10, class: 'status-dot' }).up()
-                .ele('text', { x: 300, y: 80, class: 'subheader' })
-                    .txt(`${onlineStatusText}`).up()
-                .ele('text', { x: 50, y: 150, class: 'content' })
-                    .txt(`🧠Rapid: ${data.perfs.rapid.rating}`).up()
-
-                .ele('rect', { x: 180, y: 140, width: 0, height: 20, class: 'graph' })
-    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs.rapid.rating / 3000 * 400}`, dur: '2s', fill: 'freeze' }).up().up()
-                .ele('text', { x: 50, y: 200, class: 'content' })
-                    .txt(`🔥Blitz: ${data.perfs.blitz.rating}`).up()
-.ele('rect', { x: 180, y: 190, width: 0, height: 20, class: 'graph' })
-    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs.blitz.rating / 3000 * 400}`, dur: '2s', fill: 'freeze' }).up().up()
-               
-                .ele('text', { x: 50, y: 250, class: 'content' })
-                    .txt(`⚡Bullet: ${data.perfs.bullet.rating}`).up()
-                
-.ele('rect', { x: 180, y: 240, width: 0, height: 20, class: 'graph' })
-    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs.bullet.rating / 3000 * 400}`, dur: '2s', fill: 'freeze' }).up().up()
-
-            .end({ prettyPrint: true });
+        const svg = createSVG(data, onlineStatusColor, onlineStatusText);
 
         console.log('SVG generated successfully:', svg);
 
