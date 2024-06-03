@@ -23,103 +23,75 @@ app.get('/lichess-stats/:username', async (req, res) => {
 
         const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const minutes = Math.floor((timeDiff % (1000 * 60)) / 1000 / 60);
 
-        const profilePicUrl ='https://i.pinimg.com/originals/31/35/27/3135276a3e0c9e65472d3e544839c658.jpg'; // Use Lichess profile picture or a default one if not available
+        const onlineStatusColor = (days === 0 && hours === 0 && minutes <= 5) ? '#4caf50' : '#9e9e9e';
+        const onlineStatusText = (days === 0 && hours === 0 && minutes <= 5) ? 'Online' : `Online: ${days} days, ${hours} h, and ${minutes} min ago`;
 
         const svg = create({ version: '1.0', encoding: 'UTF-8' })
-            .ele('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 500, height: 300 })
+            .ele('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 600, height: 350, style: 'border-radius: 9px; background-color: #1e1e1e; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);' })
                 .ele('style')
                     .txt(`
-                        body {
+                        text {
                             font-family: 'Roboto Condensed', sans-serif;
-                            background-color: #0a0a0a;
-                            color: #f5f5f5;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            height: 100vh;
-                            margin: 0;
+                            fill: #f5f5f5;
                         }
-                        .lichess {
-                            border-radius: 9px;
-                            height: auto;
-                            width: 40%;
-                            background-color: #363636;
-                            color: #f5f5f5;
-                            display: flex;
-                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                        .header {
+                            font-size: 26px;
+                            font-weight: bold;
+                            text-anchor: middle;
                         }
-                        .sidebar {
-                            width: 50%;
-                            padding: 20px;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            border-right: 1px solid #4a4a4a;
-                        }
-                        .sidebar img {
-                            border-radius: 50%;
-                            width: 100px;
-                            height: 100px;
-                            margin-bottom: 10px;
-                        }
-                        .sidebar h1 {
-                            font-size: 22px;
-                            margin: 10px 0;
-                            color: #f5f5f5;
-                        }
-                        .sidebar p {
-                            margin: 5px 0;
-                            font-size: 14px;
-                            display: flex;
-                            align-items: center;
-                            color: #f5f5f5;
-                        }
-                        .ratings {
-                            width: 50%;
-                            padding: 20px;
-                            display: flex;
-                            flex-direction: column;
-                            justify-content: center;
-                        }
-                        .ratings h2 {
-                            margin: 10px 0;
+                        .subheader {
                             font-size: 18px;
-                            color: #f5f5f5;
+                            text-anchor: middle;
+                        }
+                        .content {
+                            font-size: 16px;
+                        }
+                        .rating-bar {
+                            fill: #4caf50;
+                            rx: 10;
+                            ry: 10;
+                        }
+                        .border-box {
+                            stroke: #4a4a4a;
+                            stroke-width: 2;
+                            fill: none;
+                            rx: 9;
+                            ry: 9;
                         }
                         .icon {
-                            margin-right: 8px;
-                            color: #f5f5f5;
-                        }
-                        .profile-url a {
-                            color: #f5f5f5;
-                            text-decoration: none;
-                        }
-                        .profile-url a:hover {
-                            text-decoration: underline;
-                        }
-                        .status-dot {
-                            width: 10px;
-                            height: 10px;
-                            border-radius: 50%;
+                            width: 20px;
+                            height: 20px;
+                            fill: #f5f5f5;
                             margin-right: 5px;
                         }
+                        .graph {
+                            fill: #4caf50;
+                            rx: 10;
+                            ry: 10;
+                        }
+                        .status-dot {
+                            fill: ${onlineStatusColor};
+                        }
                     `).up()
-                .ele('rect', { width: '100%', height: '100%', fill: '#0a0a0a' }).up()
-                .ele('text', { x: 20, y: 40, fill: '#f5f5f5', 'font-size': 24 })
-                    .txt(`User: ${data.username}`).up()
-                .ele('text', { x: 20, y: 70, fill: '#f5f5f5', 'font-size': 18 })
-                    .txt(`Online: ${days} days, ${hours} h, and ${minutes} min ago`).up()
-                .ele('image', { href: profilePicUrl, x: 20, y: 100, width: 100, height: 100 }).up()
-                .ele('text', { x: 140, y: 130, fill: '#f5f5f5', 'font-size': 18 })
-                    .txt(`Rapid: ${data.perfs.rapid.rating}`).up()
-                .ele('text', { x: 140, y: 160, fill: '#f5f5f5', 'font-size': 18 })
-                    .txt(`Blitz: ${data.perfs.blitz.rating}`).up()
-                .ele('text', { x: 140, y: 190, fill: '#f5f5f5', 'font-size': 18 })
-                    .txt(`Bullet: ${data.perfs.bullet.rating}`).up()
-                .ele('text', { x: 140, y: 220, fill: '#f5f5f5', 'font-size': 18 })
-                    .txt(`Playtime: ${Math.floor(data.playTime.total / (60 * 60 * 1000))} hours`).up()
+                .ele('rect', { width: '100%', height: '100%', fill: '#1e1e1e', rx: 9, ry: 9 }).up()
+                .ele('rect', { x: 10, y: 10, width: 580, height: 330, class: 'border-box' }).up()
+                .ele('text', { x: 300, y: 50, class: 'header' })
+                    .txt(`⚜️${data.username}⚜️`).up()
+                .ele('circle', { cx: 570, cy: 30, r: 10, class: 'status-dot' }).up()
+                .ele('text', { x: 300, y: 80, class: 'subheader' })
+                    .txt(`${onlineStatusText}`).up()
+                .ele('text', { x: 50, y: 150, class: 'content' })
+                    .txt(`🧠Rapid: ${data.perfs.rapid.rating}`).up()
+                .ele('rect', { x: 180, y: 140, width: 0, height: 20, class: 'graph' })
+    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs.rapid.rating / 3000 * 400}`, dur: '2s', fill: 'freeze' }).up().up()
+                .ele('text', { x: 50, y: 200, class: 'content' })
+                    .txt(`🔥Blitz: ${data.perfs.blitz.rating}`).up()
+                .ele('rect', { x: 180, y: 190, width: `${data.perfs.blitz.rating / 3000 * 400}`, height: 20, class: 'graph' }).up()
+                .ele('text', { x: 50, y: 250, class: 'content' })
+                    .txt(`⚡Bullet: ${data.perfs.bullet.rating}`).up()
+                .ele('rect', { x: 180, y: 240, width: `${data.perfs.bullet.rating / 3000 * 400}`, height: 20, class: 'graph' }).up()
             .end({ prettyPrint: true });
 
         console.log('SVG generated successfully:', svg);
