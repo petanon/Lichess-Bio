@@ -43,12 +43,21 @@ app.get('/lichess-stats/:username', async (req, res) => {
                         .content {
                             font-size: 16px;
                         }
+                        .rating-bar {
+                            fill: #4caf50;
+                        }
                         .border-box {
                             stroke: #4a4a4a;
                             stroke-width: 2;
                             fill: none;
                             rx: 9;
                             ry: 9;
+                        }
+                        .icon {
+                            width: 16px;
+                            height: 16px;
+                            fill: #f5f5f5;
+                            margin-right: 5px;
                         }
                     `).up()
                 .ele('rect', { width: '100%', height: '100%', fill: '#1e1e1e', rx: 9, ry: 9 }).up()
@@ -58,13 +67,24 @@ app.get('/lichess-stats/:username', async (req, res) => {
                 .ele('text', { x: 20, y: 70, class: 'subheader' })
                     .txt(`Online: ${days} days, ${hours} h, and ${minutes} min ago`).up()
                 .ele('text', { x: 20, y: 110, class: 'content' })
+                    .ele('svg', { x: 0, y: -12, class: 'icon', viewBox: '0 0 16 16' })
+                        .ele('path', { d: 'M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM5 12l4-8v8H5z' }).up().up()
                     .txt(`Rapid: ${data.perfs.rapid.rating}`).up()
                 .ele('text', { x: 20, y: 140, class: 'content' })
+                    .ele('svg', { x: 0, y: -12, class: 'icon', viewBox: '0 0 16 16' })
+                        .ele('path', { d: 'M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM5 12l4-8v8H5z' }).up().up()
                     .txt(`Blitz: ${data.perfs.blitz.rating}`).up()
                 .ele('text', { x: 20, y: 170, class: 'content' })
+                    .ele('svg', { x: 0, y: -12, class: 'icon', viewBox: '0 0 16 16' })
+                        .ele('path', { d: 'M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM5 12l4-8v8H5z' }).up().up()
                     .txt(`Bullet: ${data.perfs.bullet.rating}`).up()
                 .ele('text', { x: 20, y: 200, class: 'content' })
+                    .ele('svg', { x: 0, y: -12, class: 'icon', viewBox: '0 0 16 16' })
+                        .ele('path', { d: 'M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM5 12l4-8v8H5z' }).up().up()
                     .txt(`Playtime: ${Math.floor(data.playTime.total / (60 * 60 * 1000))} hours`).up()
+                .ele('rect', { x: 20, y: 230, width: `${data.perfs.rapid.rating / 3000 * 460}`, height: 10, class: 'rating-bar' }).up()
+                .ele('rect', { x: 20, y: 250, width: `${data.perfs.blitz.rating / 3000 * 460}`, height: 10, class: 'rating-bar' }).up()
+                .ele('rect', { x: 20, y: 270, width: `${data.perfs.bullet.rating / 3000 * 460}`, height: 10, class: 'rating-bar' }).up()
             .end({ prettyPrint: true });
 
         console.log('SVG generated successfully:', svg);
