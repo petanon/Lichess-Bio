@@ -25,7 +25,7 @@ app.get('/lichess-stats/:username', async (req, res) => {
         const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeDiff % (1000 * 60)) / 1000 / 60);
 
-        const onlineStatusColor = data.online ? '#4caf50' : '#9e9e9e';
+        const onlineStatusColor = (days === 0 && hours === 0 && minutes <= 5) ? '#4caf50' : '#9e9e9e';
 
         const svg = create({ version: '1.0', encoding: 'UTF-8' })
             .ele('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 600, height: 350, style: 'border-radius: 9px; background-color: #1e1e1e; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);' })
