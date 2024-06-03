@@ -74,15 +74,15 @@ app.get('/lichess-stats/:username', async (req, res) => {
                 .ele('text', { x: 50, y: 150, class: 'content' })
                     .txt(`🧠Rapid: ${data.perfs?.rapid?.rating || 'N/A'}`).up()
                 .ele('rect', { x: 180, y: 140, width: 0, height: 20, class: 'graph' })
-                    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs?.rapid?.rating / 3000 * 400 || 0}`, dur: '2s', fill: 'freeze' }).up().up()
+                    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs?.rapid?.rating / 3000 * 400 || 0}`, dur: '0.5s', fill: 'freeze' }).up().up()
                 .ele('text', { x: 50, y: 200, class: 'content' })
                     .txt(`🔥Blitz: ${data.perfs?.blitz?.rating || 'N/A'}`).up()
                 .ele('rect', { x: 180, y: 190, width: 0, height: 20, class: 'graph' })
-                    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs?.blitz?.rating / 3000 * 400 || 0}`, dur: '2s', fill: 'freeze' }).up().up()
+                    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs?.blitz?.rating / 3000 * 400 || 0}`, dur: '0.5s', fill: 'freeze' }).up().up()
                 .ele('text', { x: 50, y: 250, class: 'content' })
                     .txt(`⚡Bullet: ${data.perfs?.bullet?.rating || 'N/A'}`).up()
                 .ele('rect', { x: 180, y: 240, width: 0, height: 20, class: 'graph' })
-                    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs?.bullet?.rating / 3000 * 400 || 0}`, dur: '2s', fill: 'freeze' }).up().up()
+                    .ele('animate', { attributeName: 'width', from: 0, to: `${data.perfs?.bullet?.rating / 3000 * 400 || 0}`, dur: '0.5s', fill: 'freeze' }).up().up()
             .end({ prettyPrint: true });
 
         console.log('SVG generated successfully:', svg);
